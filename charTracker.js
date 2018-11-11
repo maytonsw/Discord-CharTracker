@@ -1,5 +1,6 @@
 const Discord = require('discord.js')
 const client = new Discord.Client()
+const request = require('request')
 
 client.on('message', (receivedMessage) => {
 
@@ -33,12 +34,52 @@ function processCommand(receivedMessage) {
 }
 
 function trackCommand(arguments, receivedMessage) {
-    
     let charName = arguments[0]
     let charServer = arguments[1]
     let charRegion = arguments[2]
+    let logsKey = "879f290422d74824299a945f46eefca3"
+    let apiURL = `https://www.warcraftlogs.com:443/v1/rankings/character/${charName}/${charServer}/${charRegion}?metric=dps&timeframe=historical&api_key=${logsKey}`
 
-    
+    const options = {
+        url: apiURL,
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    }
+
+    request(options, function (error, response, body) {
+            console.log('error:', error)
+            console.log('statusCode:', response && response.statusCode)
+            let json = JSON.parse(body)
+            parseData(json, receivedMessage)
+        })
+
+    /*
+    jQuery.ajax({
+        url: apiURL, method: 'GET', success: parseData,
+      })
+      */
+}
+
+function parseData(json, receivedMessage) {
+    let pctSum = 0;
+    let parsedLength = 0;
+
+    for (let i = 0; i < json.length; i += 1) {
+        const userRanking = json[i]
+        if (userRanking.difficulty > 2) {     // Ensures the lowest difficulty encounters are not included
+          const date = new Date((userRanking.startTime))
+          pctSum += userRanking.percentile
+          parsedLength += 1
+      
+          console.log(`${date} | ${parsedLength}`)
+          console.log(`Ranking: ${userRanking.rank} out of ${userRanking.outOf}. Percentile ranking: ${userRanking.percentile}.`)  
+        }
+    }   
+
+    const returnString = (`This characer is In the Top ${(100 - ((pctSum / parsedLength).toFixed()))}% of Players for DPS.`)
+    receivedMessage.channel.send(returnString)
 
 }
 
