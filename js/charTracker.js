@@ -1,5 +1,6 @@
 const Discord = require('discord.js')
 const client = new Discord.Client()
+const config = require('../config.json')
 const request = require('request')
 
 client.on('message', (receivedMessage) => {
@@ -10,7 +11,7 @@ client.on('message', (receivedMessage) => {
         return
     }
 
-    if (receivedMessage.content.startsWith("!")) {
+    if (receivedMessage.content.startsWith(config.prefix)) {
         processCommand(receivedMessage)
     }
 
@@ -83,6 +84,4 @@ function parseData(json, receivedMessage) {
 
 }
 
-bot_secret_token = "NTExMTM2NDczNzQ0MDE1MzYw.Dsmx8A.BeHU36X5a1OovJnsQnH7rz0mCw8"
-
-client.login(bot_secret_token)
+client.login(config.token)
