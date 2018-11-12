@@ -38,7 +38,7 @@ function trackCommand(arguments, receivedMessage) {
     let charName = arguments[0]
     let charServer = arguments[1]
     let charRegion = arguments[2]
-    let logsKey = "879f290422d74824299a945f46eefca3"
+    let logsKey = config.wclKey
     let apiURL = `https://www.warcraftlogs.com:443/v1/rankings/character/${charName}/${charServer}/${charRegion}?metric=dps&timeframe=historical&api_key=${logsKey}`
 
     const options = {
@@ -56,11 +56,6 @@ function trackCommand(arguments, receivedMessage) {
             parseData(json, receivedMessage)
         })
 
-    /*
-    jQuery.ajax({
-        url: apiURL, method: 'GET', success: parseData,
-      })
-      */
 }
 
 function parseData(json, receivedMessage) {
@@ -79,7 +74,7 @@ function parseData(json, receivedMessage) {
         }
     }   
 
-    const returnString = (`This characer is In the Top ${(100 - ((pctSum / parsedLength).toFixed()))}% of Players for DPS.`)
+    const returnString = (`This character is in the Top ${(100 - ((pctSum / parsedLength).toFixed()))}% of Players for DPS.`)
     receivedMessage.channel.send(returnString)
 
 }
